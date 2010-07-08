@@ -706,7 +706,7 @@
 
             if (canvasWidth <= 0 || canvasHeight <= 0)
                 throw "Invalid dimensions for plot, width = " + canvasWidth + ", height = " + canvasHeight;
-            paper = Raphael(placeholder.attr("id"), placeholder.width(), placeholder.height());
+            paper = Raphael(placeholder[0], placeholder.width(), placeholder.height());
         }
 
         function bindEvents() {

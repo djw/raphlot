@@ -2191,7 +2191,7 @@
         // trigger click or hover event (they send the same parameters
         // so we share their code)
         function triggerClickHoverEvent(eventname, event, seriesFilter) {
-            var offset = eventHolder.offset(),
+            var offset = $(paper.canvas).offset(),
                 canvasX = event.pageX - offset.left - plotOffset.left,
                 canvasY = event.pageY - offset.top - plotOffset.top,
             pos = canvasToAxisCoords({ left: canvasX, top: canvasY });
@@ -2231,22 +2231,23 @@
         function drawOverlay() {
             redrawTimeout = null;
             
-            // // draw highlights
-            // octx.save();
-            // octx.clearRect(0, 0, canvasWidth, canvasHeight);
-            // octx.translate(plotOffset.left, plotOffset.top);
-            // 
-            // var i, hi;
-            // for (i = 0; i < highlights.length; ++i) {
-            //     hi = highlights[i];
-            // 
-            //     if (hi.series.bars.show)
-            //         drawBarHighlight(hi.series, hi.point);
-            //     else
-            //         drawPointHighlight(hi.series, hi.point);
-            // }
-            // octx.restore();
-            // 
+            if (highlightedSet) highlightedSet.remove();
+            
+            highlightedSet = paper.set();
+            
+            // draw highlights
+            var i, hi;
+            for (i = 0; i < highlights.length; ++i) {
+                hi = highlights[i];
+            
+                if (hi.series.bars.show)
+                    drawBarHighlight(hi.series, hi.point);
+                else
+                    drawPointHighlight(hi.series, hi.point);
+            }
+            
+            highlightedSet.translate(plotOffset.left, plotOffset.top);
+
             executeHooks(hooks.drawOverlay, paper);
         }
         
@@ -2305,7 +2306,14 @@
             
             if (x < axisx.min || x > axisx.max || y < axisy.min || y > axisy.max)
                 return;
-
+                
+            var pointRadius = series.points.radius + series.points.lineWidth / 2;
+            var strokeStyle = $.color.parse(series.color).scale('a', 0.5).toString();
+            var radius = 1.5 * pointRadius;
+            highlightedSet.push(paper.circle(axisx.p2c(x), axisy.p2c(y), radius).attr({
+                "stroke": strokeStyle,
+                "stroke-width": pointRadius
+            }));
         }
 
         function drawBarHighlight(series, point) {

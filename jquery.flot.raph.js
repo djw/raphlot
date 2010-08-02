@@ -133,6 +133,7 @@
         paper = null,
         plotArea = null,
         currentSet = null,
+        highlightedSet = null,
         xaxes = [], yaxes = [],
         plotOffset = { left: 0, right: 0, top: 0, bottom: 0},
         canvasWidth = 0, canvasHeight = 0,

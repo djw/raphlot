@@ -1535,7 +1535,7 @@
             } else {
                 // NB: Older browsers (e.g. FF3.0 & IE) require there to be a fill for the pointer-events thing to work
                 plotArea = paper.rect(0,0,plotWidth,plotHeight).attr({
-                    "stroke":null,
+                    "stroke-opacity": 0,
                     "fill": "white",
                     "fill-opacity":0
                 }).translate(plotOffset.left, plotOffset.top);

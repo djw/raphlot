@@ -1685,7 +1685,7 @@
                     prevy = y2;
                     path += "L"+(axisx.p2c(x2) + xoffset)+" "+(axisy.p2c(y2) + yoffset);
                 }
-                currentSet.push(paper.path(path));
+                if (path) currentSet.push(paper.path(path));
             }
 
             function plotLineArea(datapoints, axisx, axisy) {

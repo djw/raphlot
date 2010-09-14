@@ -556,9 +556,6 @@
 
                 if (s.datapoints.pointsize != null)
                     continue; // already filled in
-
-                if (s.datapoints.pointsize == null)
-                    s.datapoints.pointsize = format.length;
                 
                 ps = s.datapoints.pointsize;
                 points = s.datapoints.points;
@@ -1837,7 +1834,7 @@
                 }
             }
 
-            var lw = series.lines.lineWidth,
+            var lw = series.points.lineWidth,
                 sw = series.shadowSize,
                 radius = series.points.radius;
             // if (lw > 0 && sw > 0) {

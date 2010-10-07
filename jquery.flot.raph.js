@@ -1583,6 +1583,10 @@
                         else {
                             pos.left = box.left + box.padding;
                             align = "left";
+                            paper.text((box.left + box.padding), Math.round(plotOffset.top + axis.p2c(tick.v)), tick.label).attr({
+                                "text-anchor":"start",
+                                "font-family":"Helvetica, Arial"
+                            });
                         }
                     }
 

@@ -557,6 +557,8 @@
                 if (s.datapoints.pointsize != null)
                     continue; // already filled in
                 
+                s.datapoints.pointsize = format.length;
+                
                 ps = s.datapoints.pointsize;
                 points = s.datapoints.points;
 

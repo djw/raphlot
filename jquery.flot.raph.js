@@ -1444,6 +1444,14 @@
 
                 }
             }
+
+            // fill the background
+            if (options.grid.backgroundColor) {
+                backgroundFill = paper.rect(0, 0, plotWidth, plotHeight).attr({
+                    fill: options.grid.backgroundColor,
+                    stroke: null
+                }).translate(plotOffset.left, plotOffset.top);
+            }
             
             // draw the ticks
             var axes = getUsedAxes(), bw = options.grid.borderWidth;

@@ -1392,6 +1392,15 @@
         function drawGrid() {
             var i;
 
+            // fill the background
+            if (options.grid.backgroundColor) {
+                fillStyle = getColorOrGradient(options.grid.backgroundColor, plotHeight, 0, "rgba(255, 255, 255, 0)");
+                backgroundFill = paper.rect(0, 0, plotWidth, plotHeight).attr({
+                    fill: fillStyle,
+                    stroke: null
+                }).translate(plotOffset.left, plotOffset.top);
+            }
+
             // draw markings
             var markings = options.grid.markings;
             if (markings) {
@@ -1443,14 +1452,6 @@
                     
 
                 }
-            }
-
-            // fill the background
-            if (options.grid.backgroundColor) {
-                backgroundFill = paper.rect(0, 0, plotWidth, plotHeight).attr({
-                    fill: options.grid.backgroundColor,
-                    stroke: null
-                }).translate(plotOffset.left, plotOffset.top);
             }
             
             // draw the ticks

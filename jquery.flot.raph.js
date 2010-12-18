@@ -1301,6 +1301,8 @@
                     ticks = oticks({ min: axis.min, max: axis.max });
                 else
                     ticks = oticks;
+            } else {
+                return;
             }
 
             // clean up/labelify the supplied ticks, copy them over
@@ -1473,7 +1475,7 @@
                         yoff = plotHeight;
                     paper.path("M"+x+" "+y+"L"+ (x+xoff) +" "+ (y+yoff)).attr({
                         "stroke-width": 1,
-                        "stroke": "#999"
+                        "stroke": axis.options.color ? axis.options.color : "#999"
                     }).translate(plotOffset.left, plotOffset.top);
                 // }
 
@@ -1840,7 +1842,7 @@
                 }
             }
 
-            var lw = series.points.lineWidth,
+            var lw = series.lines.lineWidth,
                 sw = series.shadowSize,
                 radius = series.points.radius;
             // if (lw > 0 && sw > 0) {
@@ -2224,7 +2226,7 @@
                     highlight(item.series, item.datapoint, eventname);
             }
             
-            placeholder.trigger(eventname, [ pos, item ]);
+            eventHolder.trigger(eventname, [ pos, item ]);
         }
 
         function triggerRedrawOverlay() {

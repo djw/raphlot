@@ -736,6 +736,11 @@
             var s, m, t = axis.options.transform || identity,
                 it = axis.options.inverseTransform;
             
+            if (axis.options.mode === "log") {
+                t  = function (v) { return Math.log(v); }
+                it = function (v) { return Math.exp(v); }
+            }
+            
             if (axis.direction == "x") {
                 // precompute how much the axis is scaling a point
                 // in canvas space
@@ -1015,7 +1020,8 @@
                 // consider autoscaling
                 var margin = opts.autoscaleMargin;
                 if (margin != null) {
-                    if (opts.min == null) {
+                    if (opts.min == null && opts.mode !== "log") {
+                        // Don't subtract margin in log scale -- it might cross zero
                         min -= delta * margin;
                         // make sure we don't go below zero if all values
                         // are positive
@@ -1344,7 +1350,7 @@
         function snapRangeToTicks(axis, ticks) {
             if (axis.options.autoscaleMargin && ticks.length > 0) {
                 // snap to ticks
-                if (axis.options.min == null)
+                if (axis.options.min == null && axis.options.mode !== "log")
                     axis.min = Math.min(axis.min, ticks[0].v);
                 if (axis.options.max == null && ticks.length > 1)
                     axis.max = Math.max(axis.max, ticks[ticks.length - 1].v);
@@ -2174,7 +2180,12 @@
                     mx = axisx.c2p(mouseX), // precompute some stuff to make the loop faster
                     my = axisy.c2p(mouseY),
                     maxx = maxDistance / axisx.scale,
-                    maxy = maxDistance / axisy.scale;
+                    // DJW - this didn't use to take account of non-linear axes.
+                    //       We want the box around the mouse pointer to be constant size in cartesian coords,
+                    //       but we need to express this in data coords for efficiency.
+                    //       This means that the size of the box will vary along non-linear axes.
+                    //       It doesn't have to be too accurate -- this is just for an initial cull of points.
+                    maxy = Math.abs(axisy.c2p(mouseY - maxDistance) - my);
 
                 if (s.lines.show || s.points.show) {
                     for (j = 0; j < points.length; j += ps) {

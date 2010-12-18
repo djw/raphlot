@@ -87,7 +87,8 @@
                         radius: 3,
                         lineWidth: 2, // in pixels
                         fill: true,
-                        fillColor: "#ffffff"
+                        fillColor: "#ffffff",
+                        symbol: "circle" // or callback
                     },
                     lines: {
                         // we don't put in show: false so we can see
@@ -1828,23 +1829,27 @@
         }
 
         function drawSeriesPoints(series) {
-            function plotPoints(datapoints, radius, fillStyle, offset, circumference, axisx, axisy) {
+            function plotPoints(datapoints, radius, fillStyle, offset, shadow, axisx, axisy, symbol) {
                 var points = datapoints.points, ps = datapoints.pointsize;
-                
                 for (var i = 0; i < points.length; i += ps) {
                     var x = points[i], y = points[i + 1];
                     if (x == null || x < axisx.min || x > axisx.max || y < axisy.min || y > axisy.max)
                         continue;
                     
-
-                    currentSet.push(paper.circle(axisx.p2c(x), axisy.p2c(y) + offset, radius));
+                    x = axisx.p2c(x)
+                    y = axisy.p2c(y) + offset;
+                    if (symbol === "circle") {
+                        currentSet.push(paper.circle(x, y, radius));
+                    } else {
+                        currentSet.push(symbol(paper, x, y, radius));
+                    }
 
                 }
             }
-
             var lw = series.lines.lineWidth,
                 sw = series.shadowSize,
-                radius = series.points.radius;
+                radius = series.points.radius,
+                symbol = series.points.symbol;
             // if (lw > 0 && sw > 0) {
             //     // draw shadow in two steps
             //     var w = sw / 2;
@@ -1861,8 +1866,8 @@
             currentSet = paper.set();
             
             plotPoints(series.datapoints, radius,
-                       getFillStyle(series.points, series.color), 0, 2 * Math.PI,
-                       series.xaxis, series.yaxis);
+                       getFillStyle(series.points, series.color), 0, false,
+                       series.xaxis, series.yaxis, symbol);
             
             currentSet.attr({
                 "stroke": series.color,
@@ -2315,11 +2320,20 @@
                 
             var pointRadius = series.points.radius + series.points.lineWidth / 2;
             var strokeStyle = $.color.parse(series.color).scale('a', 0.5).toString();
-            var radius = 1.5 * pointRadius;
-            highlightedSet.push(paper.circle(axisx.p2c(x), axisy.p2c(y), radius).attr({
-                "stroke": strokeStyle,
-                "stroke-width": pointRadius
-            }));
+            var radius = 1.5 * pointRadius,
+                x = axisx.p2c(x),
+                y = axisy.p2c(y);
+            if (series.points.symbol === "circle") {
+                highlightedSet.push(paper.circle(x, y, radius).attr({
+                    "stroke": strokeStyle,
+                    "stroke-width": pointRadius
+                }));
+            } else {
+                highlightedSet.push(series.points.symbol(paper, x, y, radius).attr({
+                    "stroke": strokeStyle,
+                    "stroke-width": pointRadius
+                }));
+            }
         }
 
         function drawBarHighlight(series, point) {

@@ -263,7 +263,7 @@
             if (options.yaxis.noTicks && options.yaxis.ticks == null)
                 options.yaxis.ticks = options.yaxis.noTicks;
             if (options.x2axis) {
-                options.y2axis.position = "top";
+                options.x2axis.position = "top";
                 options.xaxes[1] = options.x2axis;
             }
             if (options.y2axis) {
@@ -368,7 +368,7 @@
                     if (pos[key] == null && axis.n == 1)
                         key = "x";
 
-                    if (pos[key]) {
+                    if (pos[key] != null) {
                         res.left = axis.p2c(pos[key]);
                         break;
                     }
@@ -382,7 +382,7 @@
                     if (pos[key] == null && axis.n == 1)
                         key = "y";
 
-                    if (pos[key]) {
+                    if (pos[key] != null) {
                         res.top = axis.p2c(pos[key]);
                         break;
                     }

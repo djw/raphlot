@@ -132,7 +132,6 @@
             },
         eventHolder = null, // jQuery object that events should be bound to
         paper = null,
-        plotArea = null,
         currentSet = null,
         highlightedSet = null,
         xaxes = [], yaxes = [],
@@ -712,7 +711,7 @@
 
         function bindEvents() {
 
-            eventHolder = $(plotArea.node).css("pointer-events","fill");
+            eventHolder = $(paper.canvas).css("pointer-events","fill");
 
             // bind events
             if (options.grid.hoverable) {
@@ -1532,16 +1531,9 @@
             
             // draw border
             if (bw) {
-                plotArea = paper.rect(-bw/2, -bw/2, plotWidth + bw, plotHeight + bw).attr({
+                paper.rect(-bw/2, -bw/2, plotWidth + bw, plotHeight + bw).attr({
                     "stroke-width": bw,
                     "stroke": options.grid.borderColor
-                }).translate(plotOffset.left, plotOffset.top);
-            } else {
-                // NB: Older browsers (e.g. FF3.0 & IE) require there to be a fill for the pointer-events thing to work
-                plotArea = paper.rect(0,0,plotWidth,plotHeight).attr({
-                    "stroke-opacity": 0,
-                    "fill": "white",
-                    "fill-opacity":0
                 }).translate(plotOffset.left, plotOffset.top);
             }
         }

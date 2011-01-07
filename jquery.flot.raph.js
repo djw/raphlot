@@ -1862,8 +1862,9 @@
             if (fillStyle) {
                 plotLineArea(series.datapoints, series.xaxis, series.yaxis);
                 currentSet.attr({
-                  fill:fillStyle,
-                  "fill-opacity":0.4
+                    fill: fillStyle,
+                    "fill-opacity": 0.4,
+                    stroke: null
                 }).translate(plotOffset.left, plotOffset.top);
                 currentSet = paper.set();
             }

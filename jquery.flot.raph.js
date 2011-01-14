@@ -166,7 +166,7 @@
         };
         plot.getData = function () { return series; };
         plot.getAxis = function (dir, number) {
-            var a = (dir == x ? xaxes : yaxes)[number - 1];
+            var a = (dir == "x" ? xaxes : yaxes)[number - 1];
             if (a && !a.used)
                 a = null;
             return a;
@@ -835,7 +835,7 @@
         }
 
         function computeAxisBox(axis) {
-            if (!axis || (!axis.used && !(axis.labelWidth || axis.labelHeight)))
+            if (!axis || !axis.labelWidth || !axis.labelHeight)
                 return;
 
             // find the bounding box of the axis by looking at label
@@ -907,6 +907,9 @@
         }
 
         function fixupAxisBox(axis) {
+            if (!axis || !axis.labelWidth || !axis.labelHeight)
+                return;
+            
             // set remaining bounding box coordinates
             if (axis.direction == "x") {
                 axis.box.left = plotOffset.left;
@@ -1295,7 +1298,7 @@
             
             axis.ticks = [];
 
-            var oticks = axis.options.ticks, ticks = null;
+            var oticks = axis.options.ticks, ticks = [];
             if (oticks == null || (typeof oticks == "number" && oticks > 0))
                 ticks = axis.tickGenerator(axis);
             else if (oticks) {
@@ -1326,7 +1329,7 @@
         }
 
         function snapRangeToTicks(axis, ticks) {
-            if (axis.options.autoscaleMargin != null && ticks.length > 0) {
+            if (axis.options.autoscaleMargin && ticks.length > 0) {
                 // snap to ticks
                 if (axis.options.min == null)
                     axis.min = Math.min(axis.min, ticks[0].v);
@@ -1460,6 +1463,8 @@
                 var axis = axes[j], box = axis.box,
                     t = axis.tickLength, x, y, xoff, yoff;
 
+                if (axis.ticks.length == 0)
+                    continue;
 
                 // find the edges
                 if (axis.direction == "x") {

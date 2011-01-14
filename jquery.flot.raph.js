@@ -1005,6 +1005,8 @@
                 max = +(opts.max != null ? opts.max : axis.datamax),
                 delta = max - min;
 
+            if (opts.mode === "log") min = axis.datamin; //ignore opts.min -- it might not be log-scale compatible
+
             if (delta == 0.0) {
                 // degenerate case
                 var widen = max == 0 ? 1 : 0.01;

@@ -500,7 +500,7 @@
         function processData() {
             var topSentry = Number.POSITIVE_INFINITY,
                 bottomSentry = Number.NEGATIVE_INFINITY,
-                i, j, k, m, length,
+                i, j, k, m, length, insertSteps,
                 s, points, ps, x, y, axis, val, f, p;
 
             function initAxis(axis, number) {
@@ -570,7 +570,7 @@
 
                     var nullify = p == null;
                     if (!nullify) {
-                        for (m = 0; m < ps; ++m) {
+                        for (var m = 0; m < ps; ++m) {
                             val = p[m];
                             f = format[m];
 
@@ -1164,7 +1164,7 @@
                 };
 
                 formatter = function (v, axis) {
-                    var d = new Date(v);
+                    var d = new Date(v), fmt;
 
                     // first check global format
                     if (opts.timeformat != null)

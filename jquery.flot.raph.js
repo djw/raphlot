@@ -138,6 +138,7 @@
         plotOffset = { left: 0, right: 0, top: 0, bottom: 0},
         canvasWidth = 0, canvasHeight = 0,
         plotWidth = 0, plotHeight = 0,
+        labels_store = {},
         hooks = {
             processOptions: [],
             processRawData: [],
@@ -772,13 +773,9 @@
             
             var opts = axis.options, i, ticks = axis.ticks || [], labels = [],
                 l, w = opts.labelWidth, h = opts.labelHeight, dummyDiv;
-
-            function makeDummyDiv(labels, width) {
-                return $('<div style="position:absolute;top:-10000px;' + width + 'font-size:smaller">' +
-                         '<div class="' + axis.direction + 'Axis ' + axis.direction + axis.n + 'Axis">'
-                         + labels.join("") + '</div></div>')
-                    .appendTo($("body"));
-            }
+            
+            labels_store[axis.direction + String(axis.n)] = [];
+            var labels_arr = labels_store[axis.direction + String(axis.n)];
             
             if (axis.direction == "x") {
                 // to avoid measuring the widths of the labels (it's slow), we
@@ -790,38 +787,44 @@
 
                 // measure x label heights
                 if (h == null) {
-                    labels = [];
                     for (i = 0; i < ticks.length; ++i) {
                         l = ticks[i].label;
-                        if (l)
-                            labels.push('<div class="tickLabel" style="float:left;width:' + w + 'px">' + l + '</div>');
+                        if (l) {
+                            labels_arr.push(paper.text(-1000, -1000, l).attr({
+                                "text-anchor": "middle",
+                                "font-family": "Helvetica, Arial"
+                            }));
+                        }
                     }
 
-                    if (labels.length > 0) {
-                        // stick them all in the same div and measure
-                        // collective height
-                        labels.push('<div style="clear:left"></div>');
-                        dummyDiv = makeDummyDiv(labels, "width:10000px;");
-                        h = dummyDiv.height();
-                        dummyDiv.remove();
+                    if (labels_arr.length > 0) {
+                        var heights = [];
+                        for (var i = 0; i < labels_arr.length; i++) {
+                            heights.push(labels_arr[i].node.getBBox().height);
+                        }
+                        h = Math.max.apply(null, heights);
+                        w = labels_arr[0].node.getBBox().width;
                     }
                 }
             }
             else if (w == null || h == null) {
                 // calculate y label dimensions
-                for (i = 0; i < ticks.length; ++i) {
+                for (var i = 0; i < ticks.length; ++i) {
                     l = ticks[i].label;
-                    if (l)
-                        labels.push('<div class="tickLabel">' + l + '</div>');
+                    if (l) {
+                        labels_arr.push(paper.text(-1000, -1000, l).attr({
+                            "font-family": "Helvetica, Arial"
+                        }));
+                    }
                 }
                 
-                if (labels.length > 0) {
-                    dummyDiv = makeDummyDiv(labels, "");
-                    if (w == null)
-                        w = dummyDiv.children().width();
-                    if (h == null)
-                        h = dummyDiv.find("div.tickLabel").height();
-                    dummyDiv.remove();
+                if (labels_arr.length > 0) {
+                    var widths = [];
+                    for (var i=0; i < labels_arr.length; i++) {
+                        widths.push(labels_arr[i].node.getBBox().width);
+                    }
+                    w = Math.max.apply(null, widths);
+                    h = labels_arr[0].node.getBBox().height;
                 }
             }
 
@@ -1559,17 +1562,16 @@
         }
 
         function insertAxisLabels() {
-            placeholder.find(".tickLabels").remove();
-            
 
             var axes = getUsedAxes();
             for (var j = 0; j < axes.length; ++j) {
                 var axis = axes[j], box = axis.box;
-                //debug: html.push('<div style="position:absolute;opacity:0.10;background-color:red;left:' + box.left + 'px;top:' + box.top + 'px;width:' + box.width +  'px;height:' + box.height + 'px"></div>')
                 for (var i = 0; i < axis.ticks.length; ++i) {
                     var tick = axis.ticks[i];
-                    if (!tick.label || tick.v < axis.min || tick.v > axis.max)
+                    if (!tick.label || tick.v < axis.min || tick.v > axis.max) {
+                        labels_store[axis.direction+String(axis.n)][i].remove();
                         continue;
+                    }
 
                     var pos = {}, align;
                     pos.width = axis.labelWidth;
@@ -1579,9 +1581,9 @@
                         pos.left = Math.round(plotOffset.left + axis.p2c(tick.v) - axis.labelWidth/2);
                         if (axis.position == "bottom") {
                             pos.top = box.top + box.padding;
-                            paper.text(Math.round(plotOffset.left + axis.p2c(tick.v)), pos.top+5, tick.label).attr({
-                                  "text-anchor":"middle",
-                                  "font-family":"Helvetica, Arial"
+                            labels_store[axis.direction+String(axis.n)][i].attr({
+                                "x": Math.round(plotOffset.left + axis.p2c(tick.v)),
+                                "y": pos.top + 5
                             });
                         } else {
                             pos.bottom = canvasHeight - (box.top + box.height - box.padding);
@@ -1590,29 +1592,22 @@
                     else {
                         pos.top = Math.round(plotOffset.top + axis.p2c(tick.v) - axis.labelHeight/2);
                         if (axis.position == "left") {
-                            pos.right = canvasWidth - (box.left + box.width - box.padding)
-                            align = "right";
-                            paper.text((box.left + box.width - box.padding), Math.round(plotOffset.top + axis.p2c(tick.v)), tick.label).attr({
-                                "text-anchor":"end",
-                                "font-family":"Helvetica, Arial"
+                            pos.right = canvasWidth - (box.left + box.width - box.padding);
+                            labels_store[axis.direction+String(axis.n)][i].attr({
+                                "x": box.left + box.width - box.padding,
+                                "y": Math.round(plotOffset.top + axis.p2c(tick.v)),
+                                "text-anchor":"end"
                             });
                         }
                         else {
                             pos.left = box.left + box.padding;
-                            align = "left";
-                            paper.text((box.left + box.padding), Math.round(plotOffset.top + axis.p2c(tick.v)), tick.label).attr({
-                                "text-anchor":"start",
-                                "font-family":"Helvetica, Arial"
+                            labels_store[axis.direction+String(axis.n)][i].attr({
+                                "x": box.left + box.padding,
+                                "y": Math.round(plotOffset.top + axis.p2c(tick.v)),
+                                "text-anchor":"start"
                             });
                         }
                     }
-
-
-                    var style = ["position:absolute", "text-align:" + align ];
-                    for (var a in pos)
-                        style.push(a + ":" + pos[a] + "px")
-                    
-                    
                 }
             }
 

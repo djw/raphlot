@@ -139,6 +139,7 @@
         canvasWidth = 0, canvasHeight = 0,
         plotWidth = 0, plotHeight = 0,
         labels_store = {},
+        font_family = '"Helvetica Neue",Arial,Helvetica,Geneva,sans-serif';
         hooks = {
             processOptions: [],
             processRawData: [],
@@ -792,7 +793,7 @@
                         if (l) {
                             labels_arr.push(paper.text(-1000, -1000, l).attr({
                                 "text-anchor": "middle",
-                                "font-family": "Helvetica, Arial"
+                                "font-family": font_family
                             }));
                         }
                     }
@@ -813,7 +814,7 @@
                     l = ticks[i].label;
                     if (l) {
                         labels_arr.push(paper.text(-1000, -1000, l).attr({
-                            "font-family": "Helvetica, Arial"
+                            "font-family": font_family
                         }));
                     }
                 }

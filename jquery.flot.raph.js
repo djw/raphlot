@@ -1573,26 +1573,18 @@
                         continue;
                     }
 
-                    var pos = {}, align;
-                    pos.width = axis.labelWidth;
-                    
                     if (axis.direction == "x") {
-                        align = "center";
-                        pos.left = Math.round(plotOffset.left + axis.p2c(tick.v) - axis.labelWidth/2);
                         if (axis.position == "bottom") {
-                            pos.top = box.top + box.padding;
                             labels_store[axis.direction+String(axis.n)][i].attr({
                                 "x": Math.round(plotOffset.left + axis.p2c(tick.v)),
-                                "y": pos.top + 5
+                                "y": box.top + box.padding + 5
                             });
                         } else {
-                            pos.bottom = canvasHeight - (box.top + box.height - box.padding);
+                            // pos.bottom = canvasHeight - (box.top + box.height - box.padding);
                         }
                     }
                     else {
-                        pos.top = Math.round(plotOffset.top + axis.p2c(tick.v) - axis.labelHeight/2);
                         if (axis.position == "left") {
-                            pos.right = canvasWidth - (box.left + box.width - box.padding);
                             labels_store[axis.direction+String(axis.n)][i].attr({
                                 "x": box.left + box.width - box.padding,
                                 "y": Math.round(plotOffset.top + axis.p2c(tick.v)),
@@ -1600,7 +1592,6 @@
                             });
                         }
                         else {
-                            pos.left = box.left + box.padding;
                             labels_store[axis.direction+String(axis.n)][i].attr({
                                 "x": box.left + box.padding,
                                 "y": Math.round(plotOffset.top + axis.p2c(tick.v)),

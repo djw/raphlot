@@ -805,6 +805,8 @@
                         }
                         h = Math.max.apply(null, heights);
                         w = labels_arr[0].node.getBBox().width;
+                        // hopefully temporary hack
+                        if (h < 10) h = 10;
                     }
                 }
             }

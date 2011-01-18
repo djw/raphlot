@@ -953,10 +953,17 @@
                     measureTickLabels(yaxes[j]);
                     
                 // compute the axis boxes, start from the outside (reverse order)
-                for (j = xaxes.length - 1; j >= 0; --j)
-                    computeAxisBox(xaxes[j]);
                 for (j = yaxes.length - 1; j >= 0; --j)
                     computeAxisBox(yaxes[j]);
+                for (j = xaxes.length - 1; j >= 0; --j) {
+                    computeAxisBox(xaxes[j]);
+                    // In order to avoid the labels overlapping the edges of the container we make sure
+                    // the padding's at least labelWidth/2. This assumes a worst-case-scenario of the
+                    // tick marks being at the extremes of the axes -- we could do better except that we
+                    // don't yet know the positions of the ticks in canvas coordinates.
+                    plotOffset.left = Math.max(plotOffset.left, xaxes[j].labelWidth/2);
+                    plotOffset.right = Math.max(plotOffset.right, xaxes[j].labelWidth/2);
+                }
 
                 // make sure we've got enough space for things that
                 // might stick out

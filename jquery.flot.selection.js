@@ -290,7 +290,6 @@ The plugin allso adds the following methods to the plot object:
         plot.hooks.drawOverlay.push(function (plot, paper) {
             // draw selection
             if (selection.show && selectionIsSane()) {
-                if (halo) halo.remove();
                 var plotOffset = plot.getPlotOffset();
                 var o = plot.getOptions();
 
@@ -314,14 +313,24 @@ The plugin allso adds the following methods to the plot object:
                 // 
                 // ctx.restore();
                 
-                halo = paper.rect(x, y, w, h).attr({
-                    "stroke": "#BBBB22",
-                    "stroke-opacity": 1,
-                    "stroke-width": 1,
-                    "stroke-linejoin":"round",
-                    "fill": "#EEEE22",
-                    "fill-opacity": 0.2
-                }).translate(plotOffset.left, plotOffset.top);
+                if (halo) {
+                    halo.attr({
+                        "x": x + plotOffset.left,
+                        "y": y + plotOffset.top,
+                        "width":w,
+                        "height":h
+                    });
+                } else {
+                    halo = paper.rect(x, y, w, h).attr({
+                        "stroke": "#BBBB22",
+                        "stroke-opacity": 1,
+                        "stroke-width": 1,
+                        "stroke-linejoin":"round",
+                        "fill": "#EEEE22",
+                        "fill-opacity": 0.2
+                    }).translate(plotOffset.left, plotOffset.top);
+                }
+
             }
         });
     }

@@ -777,14 +777,13 @@
             
             labels_store[axis.direction + String(axis.n)] = [];
             var labels_arr = labels_store[axis.direction + String(axis.n)];
-            
             if (axis.direction == "x") {
                 // to avoid measuring the widths of the labels (it's slow), we
                 // construct fixed-size boxes and put the labels inside
                 // them, we don't need the exact figures and the
                 // fixed-size box content is easy to center
-                if (w == null)
-                    w = Math.floor(canvasWidth / (ticks.length > 0 ? ticks.length : 1));
+                if (w == null && ticks.length > 0)
+                    w = Math.floor(canvasWidth / ticks.length);
 
                 // measure x label heights
                 if (h == null) {

@@ -1,5 +1,3 @@
-/*global $ */
-/*jslint browser: true, devel: true, onevar: false, plusplus: false, immed:false, regexp:false */
 /*
 Flot plugin for rendering pie charts. The plugin assumes the data is 
 coming is as a single data value for each series, and each of those 
@@ -62,6 +60,7 @@ More detail and specific examples can be found in the included HTML file.
 
 (function ($) {
 	function init(plot) {
+
 		var canvas = null;
 		var target = null;
 		var maxRadius = null;
@@ -429,28 +428,29 @@ More detail and specific examples can be found in the included HTML file.
                         var x =  Math.round(Math.cos(halfAngle) * radius);
                         var y =  Math.round(Math.sin(halfAngle) * radius) * options.series.pie.tilt;
 
-                        pie_set.push(paper.text(x, y, text).attr({"fill":slice.color}));
-                        // var html = '<span class="pieLabel" id="pieLabel'+index+'" style="position:absolute;top:' + y + 'px;left:' + x + 'px;">' + text + "</span>";
-                        // target.append(html);
-                        // var label = target.children('#pieLabel'+index);
-                        // var labelTop = (y - label.height()/2);
-                        // var labelLeft = (x - label.width()/2);
-                        // label.css('top', labelTop);
-                        // label.css('left', labelLeft);
+                        var text_node = paper.text(x, y, text).attr({"fill": options.series.pie.label.color ? options.series.pie.label.color : slice.color});
+                        pie_set.push(text_node);
 
                         // check to make sure that the label is not outside the canvas
                         // if (0-labelTop>0 || 0-labelLeft>0 || canvas.height-(labelTop+label.height())<0 || canvas.width-(labelLeft+label.width())<0)
                         //  redraw = true;
                         // 
-                        // if (options.series.pie.label.background.opacity != 0) {
-                        //  // put in the transparent background separately to avoid blended labels and label boxes
-                        //  var c = options.series.pie.label.background.color;
-                        //  if (c == null) {
-                        //      c = slice.color;
-                        //  }
-                        //  var pos = 'top:'+labelTop+'px;left:'+labelLeft+'px;';
-                        //  $('<div class="pieLabelBackground" style="position:absolute;width:' + label.width() + 'px;height:' + label.height() + 'px;' + pos +'background-color:' + c + ';"> </div>').insertBefore(label).css('opacity', options.series.pie.label.background.opacity);
-                        // }
+
+                        if (options.series.pie.label.background.opacity != 0) {
+                            // put in the transparent background separately to avoid blended labels and label boxes
+                            var c = options.series.pie.label.background.color;
+                            if (c == null) {
+                                c = slice.color;
+                            }
+                            var bbox = text_node.node.getBBox();
+                            var padding = 3;
+                            pie_set.push(paper.rect(bbox.x - padding, bbox.y - padding, bbox.width + 2*padding, bbox.height + 2*padding).attr({
+                                fill: c,
+                                "fill-opacity": options.series.pie.label.background.opacity,
+                                "stroke": null
+                            }));
+                        }
+                        text_node.toFront();
                     } // end individual label function
                 } // end drawLabels function
                 

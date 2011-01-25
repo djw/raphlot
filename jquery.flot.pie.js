@@ -1,3 +1,5 @@
+/*global $ */
+/*jslint browser: true, devel: true, onevar: false, plusplus: false, immed:false, regexp:false */
 /*
 Flot plugin for rendering pie charts. The plugin assumes the data is 
 coming is as a single data value for each series, and each of those 
@@ -58,10 +60,8 @@ More detail and specific examples can be found in the included HTML file.
 
 */
 
-(function ($) 
-{
-	function init(plot) // this is the "body" of the plugin
-	{
+(function ($) {
+	function init(plot) {
 		var canvas = null;
 		var target = null;
 		var maxRadius = null;
@@ -75,18 +75,16 @@ More detail and specific examples can be found in the included HTML file.
 		var processed = false;
 		var raw = false;
 		
-		// interactive variables	
-		var highlights = [];	
+		// interactive variables
+		var highlights = [];
 	
 		// add hook to determine if pie plugin in enabled, and then perform necessary operations
 		plot.hooks.processOptions.push(checkPieEnabled);
-		plot.hooks.bindEvents.push(bindEvents);	
+		plot.hooks.bindEvents.push(bindEvents);
 
 		// check to see if the pie plugin is enabled
-		function checkPieEnabled(plot, options)
-		{
-			if (options.series.pie.show)
-			{
+		function checkPieEnabled(plot, options) {
+			if (options.series.pie.show) {
 				//disable grid
 				options.grid.show = false;
 				
@@ -112,7 +110,7 @@ More detail and specific examples can be found in the included HTML file.
 			
 				// add processData hook to do transformations on the data
 				plot.hooks.processDatapoints.push(processDatapoints);
-				plot.hooks.drawOverlay.push(drawOverlay);	
+				plot.hooks.drawOverlay.push(drawOverlay);
 				
 				// add draw hook
 				plot.hooks.draw.push(draw);
@@ -120,8 +118,7 @@ More detail and specific examples can be found in the included HTML file.
 		}
 	
 		// bind hoverable events
-		function bindEvents(plot, eventHolder) 		
-		{		
+		function bindEvents(plot, eventHolder) {
 			var options = plot.getOptions();
 			
 			if (options.series.pie.show && options.grid.hoverable)
@@ -129,29 +126,25 @@ More detail and specific examples can be found in the included HTML file.
 				
 			if (options.series.pie.show && options.grid.clickable)
 				eventHolder.unbind('click').click(onClick);
-		}	
+		}
 		
 
 		// debugging function that prints out an object
-		function alertObject(obj)
-		{
+		function alertObject(obj) {
 			var msg = '';
-			function traverse(obj, depth)
-			{
+			function traverse(obj, depth) {
 				if (!depth)
 					depth = 0;
-				for (var i = 0; i < obj.length; ++i)
-				{
+				for (var i = 0; i < obj.length; ++i) {
 					for (var j=0; j<depth; j++)
 						msg += '\t';
 				
-					if( typeof obj[i] == "object")
-					{	// its an object
+					if( typeof obj[i] == "object") {
+					    // its an object
 						msg += ''+i+':\n';
 						traverse(obj[i], depth+1);
-					}
-					else
-					{	// its a value
+					} else {
+					    // its a value
 						msg += ''+i+': '+obj[i]+'\n';
 					}
 				}
@@ -160,20 +153,16 @@ More detail and specific examples can be found in the included HTML file.
 			alert(msg);
 		}
 		
-		function calcTotal(data)
-		{
-			for (var i = 0; i < data.length; ++i)
-			{
+		function calcTotal(data) {
+			for (var i = 0; i < data.length; ++i) {
 				var item = parseFloat(data[i].data[0][1]);
 				if (item)
 					total += item;
 			}
-		}	
+		}
 		
-		function processDatapoints(plot, series, data, datapoints) 
-		{	
-			if (!processed)
-			{
+		function processDatapoints(plot, series, data, datapoints) {
+			if (!processed) {
 				processed = true;
 			
 				canvas = plot.getCanvas();
@@ -184,8 +173,7 @@ More detail and specific examples can be found in the included HTML file.
 			}
 		}
 		
-		function setupPie()
-		{
+		function setupPie() {
 			legendWidth = target.children().filter('.legend').children().width();
 		
 			// calculate maximum radius and center point
@@ -207,8 +195,7 @@ More detail and specific examples can be found in the included HTML file.
 				centerLeft = canvas.width-maxRadius;
 		}
 		
-		function fixData(data)
-		{
+		function fixData(data) {
 			for (var i = 0; i < data.length; ++i)
 			{
 				if (typeof(data[i].data)=='number')
@@ -224,8 +211,7 @@ More detail and specific examples can be found in the included HTML file.
 			return data;
 		}
 		
-		function combine(data)
-		{
+		function combine(data) {
 			data = fixData(data);
 			calcTotal(data);
 			var combined = 0;
@@ -233,25 +219,21 @@ More detail and specific examples can be found in the included HTML file.
 			var color = options.series.pie.combine.color;
 			
 			var newdata = [];
-			for (var i = 0; i < data.length; ++i)
-			{
+			for (var i = 0; i < data.length; ++i) {
 				// make sure its a number
 				data[i].data[0][1] = parseFloat(data[i].data[0][1]);
 				if (!data[i].data[0][1])
 					data[i].data[0][1] = 0;
 					
-				if (data[i].data[0][1]/total<=options.series.pie.combine.threshold)
-				{
+				if (data[i].data[0][1]/total<=options.series.pie.combine.threshold) {
 					combined += data[i].data[0][1];
 					numCombined++;
 					if (!color)
 						color = data[i].color;
-				}				
-				else
-				{
+				} else {
 					newdata.push({
-						data: [[1,data[i].data[0][1]]], 
-						color: data[i].color, 
+						data: [[1,data[i].data[0][1]]],
+						color: data[i].color,
 						label: data[i].label,
 						angle: (data[i].data[0][1]*(Math.PI*2))/total,
 						percent: (data[i].data[0][1]/total*100)
@@ -260,8 +242,8 @@ More detail and specific examples can be found in the included HTML file.
 			}
 			if (numCombined>0)
 				newdata.push({
-					data: [[1,combined]], 
-					color: color, 
+					data: [[1,combined]],
+					color: color,
 					label: options.series.pie.combine.label,
 					angle: (combined*(Math.PI*2))/total,
 					percent: (combined/total*100)
@@ -269,8 +251,7 @@ More detail and specific examples can be found in the included HTML file.
 			return newdata;
 		}		
 		
-		function draw(plot, newCtx)
-		{
+		function draw(plot, newCtx) {
 			if (!target) return; // if no series were passed
 		
 		    var paper = plot.getCanvas();
@@ -279,8 +260,7 @@ More detail and specific examples can be found in the included HTML file.
 			var slices = plot.getData();
 		
 			var attempts = 0;
-			while (redraw && attempts<redrawAttempts)
-			{
+			while (redraw && attempts<redrawAttempts) {
 				redraw = false;
 				if (attempts>0)
 					maxRadius *= shrink;
@@ -295,22 +275,19 @@ More detail and specific examples can be found in the included HTML file.
 				target.prepend('<div class="error">Could not draw pie with labels contained inside canvas</div>');
 			}
 			
-			if ( plot.setSeries && plot.insertLegend )
-			{
+			if ( plot.setSeries && plot.insertLegend ) {
 				plot.setSeries(slices);
 				plot.insertLegend();
 			}
 			
 			// we're actually done at this point, just defining internal functions at this point
 			
-			function clear()
-			{
+			function clear() {
                 // ctx.clearRect(0,0,canvas.width,canvas.height);
                 // target.children().filter('.pieLabel, .pieLabelBackground').remove();
 			}
 			
-			function drawShadow()
-			{
+			function drawShadow() {
                 // var shadowLeft = 5;
                 // var shadowTop = 15;
                 // var edge = 10;
@@ -344,12 +321,11 @@ More detail and specific examples can be found in the included HTML file.
                 // }    
                 // 
                 // ctx.restore();
-			}
-			
-			function drawPie()
-			{
+            }
+
+            function drawPie() {
                 var startAngle = Math.PI*options.series.pie.startAngle;
-				
+                
                 // set radius
                 if (options.series.pie.radius>1)
                  var radius = options.series.pie.radius;
@@ -379,8 +355,7 @@ More detail and specific examples can be found in the included HTML file.
                 pie_set.translate(centerLeft, centerTop);
                 pie_set.scale(1, options.series.pie.tilt, centerLeft, centerTop);
                 
-                function drawSlice(angle, color, fill)
-                {    
+                function drawSlice(angle, color, fill) {
                  if (angle<=0)
                      return;
                 
@@ -567,29 +542,24 @@ More detail and specific examples can be found in the included HTML file.
 			return null;
 		}
 
-		function onMouseMove(e) 
-		{
+		function onMouseMove(e) {
 			triggerClickHoverEvent('plothover', e);
 		}
 		
-        function onClick(e) 
-		{
-			triggerClickHoverEvent('plotclick', e);
+        function onClick(e) {
+            triggerClickHoverEvent('plotclick', e);
         }
 
 		// trigger click or hover event (they send the same parameters so we share their code)
-		function triggerClickHoverEvent(eventname, e) 
-		{
+		function triggerClickHoverEvent(eventname, e) {
 			var offset = plot.offset(),
 				canvasX = parseInt(e.pageX - offset.left),
 				canvasY =  parseInt(e.pageY - offset.top),
 				item = findNearbySlice(canvasX, canvasY);
 			
-			if (options.grid.autoHighlight) 
-			{
+			if (options.grid.autoHighlight) {
 				// clear auto-highlights
-				for (var i = 0; i < highlights.length; ++i) 
-				{
+				for (var i = 0; i < highlights.length; ++i) {
 					var h = highlights[i];
 					if (h.auto == eventname && !(item && h.series == item.series))
 						unhighlight(h.series);
@@ -597,7 +567,7 @@ More detail and specific examples can be found in the included HTML file.
 			}
 			
 			// highlight the slice
-			if (item) 
+			if (item)
 			    highlight(item.series, eventname);
 				
 			// trigger any hover bind events
@@ -605,14 +575,12 @@ More detail and specific examples can be found in the included HTML file.
 			target.trigger(eventname, [ pos, item ]);	
 		}
 
-		function highlight(s, auto) 
-		{
+		function highlight(s, auto) {
 			if (typeof s == "number")
 				s = series[s];
 
 			var i = indexOfHighlight(s);
-			if (i == -1) 
-			{
+			if (i == -1) {
 				highlights.push({ series: s, auto: auto });
 				plot.triggerRedrawOverlay();
 			}
@@ -620,10 +588,8 @@ More detail and specific examples can be found in the included HTML file.
 				highlights[i].auto = false;
 		}
 
-		function unhighlight(s) 
-		{
-			if (s == null) 
-			{
+		function unhighlight(s) {
+			if (s == null) {
 				highlights = [];
 				plot.triggerRedrawOverlay();
 			}
@@ -632,17 +598,14 @@ More detail and specific examples can be found in the included HTML file.
 				s = series[s];
 
 			var i = indexOfHighlight(s);
-			if (i != -1) 
-			{
+			if (i != -1) {
 				highlights.splice(i, 1);
 				plot.triggerRedrawOverlay();
 			}
 		}
 
-		function indexOfHighlight(s) 
-		{
-			for (var i = 0; i < highlights.length; ++i) 
-			{
+		function indexOfHighlight(s) {
+			for (var i = 0; i < highlights.length; ++i) {
 				var h = highlights[i];
 				if (h.series == s)
 					return i;
@@ -650,8 +613,7 @@ More detail and specific examples can be found in the included HTML file.
 			return -1;
 		}
 
-		function drawOverlay(plot, octx) 
-		{
+		function drawOverlay(plot, octx) {
 			//alert(options.series.pie.radius);
 			var options = plot.getOptions();
 			//alert(options.series.pie.radius);

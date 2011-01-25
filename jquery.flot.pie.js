@@ -383,10 +383,18 @@ More detail and specific examples can be found in the included HTML file.
                 //  else if ($.browser.msie)
                 //      angle -= 0.0001;
 
-                pie_set.push(paper.path(sector(0, 0, radius, currentAngle, currentAngle+angle)).attr({
-                    "fill": color,
-                    "stroke": options.series.pie.stroke.color
-                }));
+                if (angle === Math.PI*2) {
+                    pie_set.push(paper.circle(0, 0, radius).attr({
+                        "fill": color,
+                        "stroke": options.series.pie.stroke.color
+                    }));
+                } else {
+                    pie_set.push(paper.path(sector(0, 0, radius, currentAngle, currentAngle + angle)).attr({
+                        "fill": color,
+                        "stroke": options.series.pie.stroke.color
+                    }));
+                }
+
                 //  //ctx.rotate(angle); // This doesn't work properly in Opera
                 currentAngle += angle;
                 //  

@@ -231,13 +231,11 @@ More detail and specific examples can be found in the included HTML file.
 					if (!color)
 						color = data[i].color;
 				} else {
-					newdata.push({
+					newdata.push($.extend(data[i], {
 						data: [[1,data[i].data[0][1]]],
-						color: data[i].color,
-						label: data[i].label,
 						angle: (data[i].data[0][1]*(Math.PI*2))/total,
 						percent: (data[i].data[0][1]/total*100)
-					});
+					}));
 				}
 			}
 			if (numCombined>0)

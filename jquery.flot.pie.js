@@ -176,9 +176,9 @@ More detail and specific examples can be found in the included HTML file.
 			legendWidth = target.children().filter('.legend').children().width();
 		
 			// calculate maximum radius and center point
-			$canvas = $(canvas.canvas);
-			var width = $canvas.width();
-			var height = $canvas.height();
+			$ph = $(plot.getPlaceholder());
+			var width = $ph.width();
+			var height = $ph.height();
 			maxRadius =  Math.min(width, (height/options.series.pie.tilt))/2;
 			centerTop = (height/2)+options.series.pie.offset.top;
 			centerLeft = (width/2);

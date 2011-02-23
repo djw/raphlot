@@ -800,10 +800,10 @@
                     if (labels_arr.length > 0) {
                         var heights = [];
                         for (var i = 0; i < labels_arr.length; i++) {
-                            heights.push(labels_arr[i].node.getBBox().height);
+                            heights.push(labels_arr[i].getBBox().height);
                         }
                         h = Math.max.apply(null, heights);
-                        w = labels_arr[0].node.getBBox().width;
+                        w = labels_arr[0].getBBox().width;
                         // hopefully temporary hack
                         if (h < 10) h = 10;
                     }
@@ -823,10 +823,10 @@
                 if (labels_arr.length > 0) {
                     var widths = [];
                     for (var i=0; i < labels_arr.length; i++) {
-                        widths.push(labels_arr[i].node.getBBox().width);
+                        widths.push(labels_arr[i].getBBox().width);
                     }
                     w = Math.max.apply(null, widths);
-                    h = labels_arr[0].node.getBBox().height;
+                    h = labels_arr[0].getBBox().height;
                 }
             }
 

@@ -139,7 +139,7 @@
         canvasWidth = 0, canvasHeight = 0,
         plotWidth = 0, plotHeight = 0,
         labels_store = {},
-        font_family = '"Helvetica Neue",Arial,Helvetica,Geneva,sans-serif';
+        font_family = '"Helvetica Neue",Arial,Helvetica,Geneva,sans-serif',
         hooks = {
             processOptions: [],
             processRawData: [],

@@ -1716,7 +1716,7 @@
                     
                     if (areaOpen && x1 != null && x2 == null) {
                         // close area
-                        path += "Z";
+                        path += "L"+axisx.p2c(x1)+" "+ axisy.p2c(axisy.min)+ "Z";
                         currentSet.push(paper.path(path));
                         areaOpen = false;
                         continue;

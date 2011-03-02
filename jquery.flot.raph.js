@@ -1707,21 +1707,43 @@
                 var points = datapoints.points,
                     ps = datapoints.pointsize,
                     bottom = Math.min(Math.max(0, axisy.min), axisy.max),
-                    top, lastX = 0, areaOpen = false,
+                    i = 0, top, areaOpen = false,
+                    ypos = 1, segmentStart = 0, segmentEnd = 0,
                     path = "";
-                
-                for (var i = ps; i < points.length; i += ps) {
-                    var x1 = points[i - ps], y1 = points[i - ps + 1],
-                        x2 = points[i], y2 = points[i + 1];
                     
-                    if (areaOpen && x1 != null && x2 == null) {
-                        // close area
-                        path += "L"+axisx.p2c(x1)+" "+ axisy.p2c(axisy.min)+ "Z";
-                        currentSet.push(paper.path(path));
-                        areaOpen = false;
-                        continue;
-                    }
+                // we process each segment in two turns, first forward
+                // direction to sketch out top, then once we hit the
+                // end we go backwards to sketch the bottom
+                while (true) {
+                    if (ps > 0 && i > points.length + ps)
+                        break;
 
+                    i += ps; // ps is negative if going backwards
+                
+                    var x1 = points[i - ps],
+                        y1 = points[i - ps + ypos],
+                        x2 = points[i],
+                        y2 = points[i + ypos];
+
+                    if (areaOpen) {
+                        if (ps > 0 && x1 != null && x2 == null) {
+                            // at turning point
+                            segmentEnd = i;
+                            ps = -ps;
+                            ypos = 2;
+                            continue;
+                        }
+
+                        if (ps < 0 && i == segmentStart + ps) {
+                            // done with the reverse sweep
+                            areaOpen = false;
+                            ps = -ps;
+                            ypos = 1;
+                            i = segmentStart = segmentEnd + ps;
+                            continue;
+                        }
+                    }
+                    
                     if (x1 == null || x2 == null)
                         continue;
 
@@ -1757,7 +1779,7 @@
 
                     if (!areaOpen) {
                         // open area
-                        path = "M"+axisx.p2c(x1)+" "+axisy.p2c(bottom);
+                        path += "M"+axisx.p2c(x1)+" "+axisy.p2c(bottom);
                         areaOpen = true;
                     }
                     
@@ -1765,13 +1787,11 @@
                     if (y1 >= axisy.max && y2 >= axisy.max) {
                         path += "L"+axisx.p2c(x1)+" "+axisy.p2c(axisy.max);
                         path += "L"+axisx.p2c(x2)+" "+axisy.p2c(axisy.max);
-                        lastX = x2;
                         continue;
                     }
                     else if (y1 <= axisy.min && y2 <= axisy.min) {
                         path += "L"+axisx.p2c(x1)+" "+axisy.p2c(axisy.min);
                         path += "L"+axisx.p2c(x2)+" "+axisy.p2c(axisy.min);
-                        lastX = x2;
                         continue;
                     }
                     
@@ -1808,37 +1828,24 @@
                     // if the x value was changed we got a rectangle
                     // to fill
                     if (x1 != x1old) {
-                        if (y1 <= axisy.min)
-                            top = axisy.min;
-                        else
-                            top = axisy.max;
-                        
-                        path += "L"+axisx.p2c(x1old)+" "+axisy.p2c(top);
-                        path += "L"+axisx.p2c(x1)+" "+axisy.p2c(top);
+                        path += "L"+axisx.p2c(x1old)+" "+axisy.p2c(y1);
+                        // it goes to (x1, y1), but we fill that below
                     }
                     
-                    // fill the triangles
+                    // fill triangular section, this sometimes result
+                    // in redundant points if (x1, y1) hasn't changed
+                    // from previous line to, but we just ignore that
                     path += "L"+axisx.p2c(x1)+" "+axisy.p2c(y1);
                     path += "L"+axisx.p2c(x2)+" "+axisy.p2c(y2);
 
                     // fill the other rectangle if it's there
                     if (x2 != x2old) {
-                        if (y2 <= axisy.min)
-                            top = axisy.min;
-                        else
-                            top = axisy.max;
-                        
-                        path += "L"+axisx.p2c(x2)+" "+axisy.p2c(top);
+                        path += "L"+axisx.p2c(x2)+" "+axisy.p2c(y2);
                         path += "L"+axisx.p2c(x2old)+" "+axisy.p2c(top);
                     }
-
-                    lastX = Math.max(x2, x2old);
                 }
 
-                if (areaOpen) {
-                    path += "L"+axisx.p2c(lastX)+" "+axisy.p2c(bottom);
-                    currentSet.push(paper.path(path));
-                }
+                currentSet.push(paper.path(path));
             }
 
             var lw = series.lines.lineWidth,

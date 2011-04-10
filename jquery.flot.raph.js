@@ -264,14 +264,12 @@
             if (options.yaxis.noTicks && options.yaxis.ticks == null)
                 options.yaxis.ticks = options.yaxis.noTicks;
             if (options.x2axis) {
-                options.x2axis.position = "top";
-                options.xaxes[1] = options.x2axis;
+                options.xaxes[1] = $.extend(true, {}, options.xaxis, options.x2axis);
+                options.xaxes[1].position = "top";
             }
             if (options.y2axis) {
-                if (options.y2axis.autoscaleMargin === undefined)
-                    options.y2axis.autoscaleMargin = 0.02;
-                options.y2axis.position = "right";
-                options.yaxes[1] = options.y2axis;
+                options.yaxes[1] = $.extend(true, {}, options.yaxis, options.y2axis);
+                options.yaxes[1].position = "right";
             }
             if (options.grid.coloredAreas)
                 options.grid.markings = options.grid.coloredAreas;
@@ -502,6 +500,7 @@
         function processData() {
             var topSentry = Number.POSITIVE_INFINITY,
                 bottomSentry = Number.NEGATIVE_INFINITY,
+                fakeInfinity = Number.MAX_VALUE,
                 i, j, k, m, length, insertSteps,
                 s, points, ps, x, y, axis, val, f, p;
 
@@ -515,9 +514,9 @@
             }
 
             function updateAxis(axis, min, max) {
-                if (min < axis.datamin)
+                if (min < axis.datamin && min != -fakeInfinity)
                     axis.datamin = min;
-                if (max > axis.datamax)
+                if (max > axis.datamax && max != fakeInfinity)
                     axis.datamax = max;
             }
 
@@ -581,6 +580,10 @@
                                     val = +val; // convert to number
                                     if (isNaN(val))
                                         val = null;
+                                    else if (val == Infinity)
+                                        val = fakeInfinity;
+                                    else if (val == -Infinity)
+                                        val = -fakeInfinity;
                                 }
 
                                 if (val == null) {

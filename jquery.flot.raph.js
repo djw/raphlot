@@ -832,7 +832,7 @@
             axis.labelHeight = h;
         }
 
-        function computeAxisBoxFirstPhase(axis) {
+        function allocateAxisBoxFirstPhase(axis) {
             
             // find the bounding box of the axis by looking at label
             // widths/heights and ticks, make room by diminishing the
@@ -902,7 +902,7 @@
             axis.innermost = innermost;
         }
 
-        function computeAxisBoxSecondPhase(axis) {
+        function allocateAxisBoxSecondPhase(axis) {
             if (!axis || !axis.labelWidth || !axis.labelHeight)
                 return;
             
@@ -948,7 +948,7 @@
                 // with all dimensions in house, we can compute the
                 // axis boxes, start from the outside (reverse order)
                 for (i = allocatedAxes.length - 1; i >= 0; --i)
-                    computeAxisBoxFirstPhase(allocatedAxes[i]);
+                    allocateAxisBoxFirstPhase(allocatedAxes[i]);
 
                 // make sure we've got enough space for things that
                 // might stick out
@@ -972,7 +972,7 @@
 
             if (options.grid.show) {
                 $.each(allocatedAxes, function (_, axis) {
-                    computeAxisBoxSecondPhase(axis);
+                    allocateAxisBoxSecondPhase(axis);
                 });
                 
                 insertAxisLabels();

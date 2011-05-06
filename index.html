@@ -46,10 +46,27 @@
       <span class="small">by <a href="http://github.com/djw">djw</a></span></h1>
 
     <div class="description">
-      Flot ported to use Raphaël APIs rather than Canvas (and therefore outputs SVG/VML)
+      <a href="http://code.google.com/p/flot/">Flot</a> ported to use <a href="http://raphaeljs.com/">Raphaël</a> APIs
     </div>
 
-    <p><a href="examples.html">Examples!</a>
+    <h2>Advantages &amp; Disadvantages</h2>
+    
+    <p>Advantages:
+    <ul>
+        <li>SVG is a vector format, which is much better suited to drawing graphs.</li>
+        <li>No need for excanvas</li>
+        <li>Looks better at arbitrary zoom levels (important for multitouch devices)</li>
+        <li>IE support through SVG (IE9) and VML (IE6&ndash;8)</li>
+    </ul>
+    
+    <p>Disadvantages:
+
+    <ul>
+        <li>No support on Android versions  &lt; 3.0</li>
+    </ul>
+    
+    <h2>Examples</h2>
+    <p><a href="examples.html">See here</a>.
 
     <h2>Authors</h2>
 <p>Dan Wilson (dan@timetric.com)<br/>Steven Carlton (scarlton@navisite.com)<br/><br/>      </p>

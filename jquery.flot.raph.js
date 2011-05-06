@@ -51,6 +51,7 @@
                     backgroundOpacity: 0.85 // set to 0 to avoid background
                 },
                 xaxis: {
+                    show: null, // null = auto-detect, true = always, false = never
                     position: "bottom", // or "top"
                     mode: null, // null or "time"
                     color: null, // base color, labels, ticks
@@ -64,6 +65,7 @@
                     tickFormatter: null, // fn: number -> string
                     labelWidth: null, // size of tick labels in pixels
                     labelHeight: null,
+                    reserveSpace: null, // whether to reserve space even if axis isn't shown
                     tickLength: null, // size in pixels of ticks, or "full" for whole line
                     alignTicksWithAxis: null, // axis number or null for no sync
                     
@@ -284,6 +286,7 @@
             if (options.shadowSize)
                 options.series.shadowSize = options.shadowSize;
 
+            // save options on axes for future reference
             for (i = 0; i < options.xaxes.length; ++i)
                 getOrCreateAxis(xaxes, i + 1).options = options.xaxes[i];
             for (i = 0; i < options.yaxes.length; ++i)
@@ -331,6 +334,11 @@
             if (typeof a != "number")
                 a = 1; // default to first axis
             return a;
+        }
+        
+        function allAxes() {
+            // return flat array without annoying null entries
+            return $.grep(xaxes.concat(yaxes), function (a) { return a; });
         }
 
         function canvasToAxisCoords(pos) {
@@ -504,15 +512,6 @@
                 i, j, k, m, length, insertSteps,
                 s, points, ps, x, y, axis, val, f, p;
 
-            function initAxis(axis, number) {
-                if (!axis)
-                    return;
-                
-                axis.datamin = topSentry;
-                axis.datamax = bottomSentry;
-                axis.used = false;
-            }
-
             function updateAxis(axis, min, max) {
                 if (min < axis.datamin && min != -fakeInfinity)
                     axis.datamin = min;
@@ -520,10 +519,12 @@
                     axis.datamax = max;
             }
 
-            for (i = 0; i < xaxes.length; ++i)
-                initAxis(xaxes[i]);
-            for (i = 0; i < yaxes.length; ++i)
-                initAxis(yaxes[i]);
+            $.each(allAxes(), function (_, axis) {
+                // init axis
+                axis.datamin = topSentry;
+                axis.datamax = bottomSentry;
+                axis.used = false;
+            });
             
             for (i = 0; i < series.length; ++i) {
                 s = series[i];
@@ -693,7 +694,7 @@
                 updateAxis(s.yaxis, ymin, ymax);
             }
 
-            $.each(getUsedAxes(), function (i, axis) {
+            $.each(allAxes(), function (i, axis) {
                 if (axis.datamin == topSentry)
                     axis.datamin = null;
                 if (axis.datamax == bottomSentry)
@@ -772,8 +773,6 @@
         }
 
         function measureTickLabels(axis) {
-            if (!axis)
-                return;
             
             var opts = axis.options, i, ticks = axis.ticks || [], labels = [],
                 l, w = opts.labelWidth, h = opts.labelHeight, dummyDiv;
@@ -842,10 +841,8 @@
             axis.labelHeight = h;
         }
 
-        function computeAxisBox(axis) {
-            if (!axis || !axis.labelWidth || !axis.labelHeight)
-                return;
-
+        function computeAxisBoxFirstPhase(axis) {
+            
             // find the bounding box of the axis by looking at label
             // widths/heights and ticks, make room by diminishing the
             // plotOffset
@@ -861,7 +858,7 @@
 
             // determine axis margin
             var samePosition = $.grep(all, function (a) {
-                return a && a.options.position == pos && (a.labelHeight || a.labelWidth);
+                return a && a.options.position == pos && a.reserveSpace;
             });
             if ($.inArray(axis, samePosition) == samePosition.length - 1)
                 axismargin = 0; // outermost
@@ -871,7 +868,7 @@
                 tickLength = "full";
 
             var sameDirection = $.grep(all, function (a) {
-                return a && (a.labelHeight || a.labelWidth);
+                return a && a.reserveSpace;
             });
             
             var innermost = $.inArray(axis, sameDirection) == 0;
@@ -914,7 +911,7 @@
             axis.innermost = innermost;
         }
 
-        function fixupAxisBox(axis) {
+        function computeAxisBoxSecondPhase(axis) {
             if (!axis || !axis.labelWidth || !axis.labelHeight)
                 return;
             
@@ -930,47 +927,42 @@
         }
         
         function setupGrid() {
-            var axes = getUsedAxes(), j, k;
-
-            // compute axis intervals
-            for (k = 0; k < axes.length; ++k)
-                setRange(axes[k]);
-
+            var i, axes = allAxes();
+            
+            // first calculate the plot and axis box dimensions
+            $.each(axes, function (_, axis) {
+                axis.show = axis.options.show;
+                if (axis.show == null)
+                    axis.show = axis.used; // by default an axis is visible if it's got data
+                
+                axis.reserveSpace = axis.show || axis.options.reserveSpace;
+            
+                setRange(axis);
+            });
+            
+            allocatedAxes = $.grep(axes, function (axis) { return axis.reserveSpace; });
             
             plotOffset.left = plotOffset.right = plotOffset.top = plotOffset.bottom = 0;
             if (options.grid.show) {
-                // make the ticks
-                for (k = 0; k < axes.length; ++k) {
-                    setupTickGeneration(axes[k]);
-                    setTicks(axes[k]);
-                    snapRangeToTicks(axes[k], axes[k].ticks);
-                }
-
-                // find labelWidth/Height, do this on all, not just
-                // used as we might need to reserve space for unused
-                // too if their labelWidth/Height is set
-                for (j = 0; j < xaxes.length; ++j)
-                    measureTickLabels(xaxes[j]);
-                for (j = 0; j < yaxes.length; ++j)
-                    measureTickLabels(yaxes[j]);
-                    
-                // compute the axis boxes, start from the outside (reverse order)
-                for (j = yaxes.length - 1; j >= 0; --j)
-                    computeAxisBox(yaxes[j]);
-                for (j = xaxes.length - 1; j >= 0; --j) {
-                    computeAxisBox(xaxes[j]);
-                    // In order to avoid the labels overlapping the edges of the container we make sure
-                    // the padding's at least labelWidth/2. This assumes a worst-case-scenario of the
-                    // tick marks being at the extremes of the axes -- we could do better except that we
-                    // don't yet know the positions of the ticks in canvas coordinates.
-                    plotOffset.left = Math.max(plotOffset.left, xaxes[j].labelWidth/2);
-                    plotOffset.right = Math.max(plotOffset.right, xaxes[j].labelWidth/2);
-                }
+                $.each(allocatedAxes, function (_, axis) {
+                    // make the ticks
+                    setupTickGeneration(axis);
+                    setTicks(axis);
+                    snapRangeToTicks(axis, axis.ticks);
+                
+                    // find labelWidth/Height for axis
+                    measureTickLabels(axis);
+                });
+                
+                // with all dimensions in house, we can compute the
+                // axis boxes, start from the outside (reverse order)
+                for (i = allocatedAxes.length - 1; i >= 0; --i)
+                    computeAxisBoxFirstPhase(allocatedAxes[i]);
 
                 // make sure we've got enough space for things that
                 // might stick out
                 var maxOutset = 0;
-                for (var i = 0; i < series.length; ++i)
+                for (i = 0; i < series.length; ++i)
                     maxOutset = Math.max(maxOutset, 2 * (series[i].points.radius + series[i].points.lineWidth/2));
 
                 for (var a in plotOffset) {
@@ -983,12 +975,14 @@
             plotHeight = canvasHeight - plotOffset.bottom - plotOffset.top;
 
             // now we got the proper plotWidth/Height, we can compute the scaling
-            for (k = 0; k < axes.length; ++k)
-                setTransformationHelpers(axes[k]);
+            $.each(axes, function (_, axis) {
+                setTransformationHelpers(axis);
+            });
 
             if (options.grid.show) {
-                for (k = 0; k < axes.length; ++k)
-                    fixupAxisBox(axes[k]);
+                $.each(allocatedAxes, function (_, axis) {
+                    computeAxisBoxSecondPhase(axis);
+                });
                 
                 insertAxisLabels();
             }
@@ -1008,7 +1002,7 @@
 
                 if (opts.min == null)
                     min -= widen;
-                // alway widen max if we couldn't widen min to ensure we
+                // always widen max if we couldn't widen min to ensure we
                 // don't fall into min == max which doesn't work
                 if (opts.max == null || opts.min != null)
                     max += widen;
@@ -1042,12 +1036,10 @@
             var noTicks;
             if (typeof opts.ticks == "number" && opts.ticks > 0)
                 noTicks = opts.ticks;
-            else if (axis.direction == "x")
-                 // heuristic based on the model a*sqrt(x) fitted to
-                 // some reasonable data points
-                noTicks = 0.3 * Math.sqrt(canvasWidth);
             else
-                noTicks = 0.3 * Math.sqrt(canvasHeight);
+                // heuristic based on the model a*sqrt(x) fitted to
+                // some data points that seemed reasonable
+                noTicks = 0.3 * Math.sqrt(axis.direction == "x" ? canvasWidth : canvasHeight);
             
             var delta = (axis.max - axis.min) / noTicks,
                 size, generator, unit, formatter, i, magn, norm;
@@ -1310,8 +1302,6 @@
         }
         
         function setTicks(axis) {
-            
-            axis.ticks = [];
 
             var oticks = axis.options.ticks, ticks = [];
             if (oticks == null || (typeof oticks == "number" && oticks > 0))
@@ -1327,19 +1317,21 @@
 
             // clean up/labelify the supplied ticks, copy them over
             var i, v;
+            axis.ticks = [];
             for (i = 0; i < ticks.length; ++i) {
                 var label = null;
                 var t = ticks[i];
                 if (typeof t == "object") {
-                    v = t[0];
+                    v = +t[0];
                     if (t.length > 1)
                         label = t[1];
                 }
                 else
-                    v = t;
+                    v = +t;
                 if (label == null)
                     label = axis.tickFormatter(v, axis);
-                axis.ticks[i] = { v: v, label: label };
+                if (!isNaN(v))
+                    axis.ticks.push({ v: v, label: label });
             }
         }
 
@@ -1472,13 +1464,13 @@
             }
             
             // draw the ticks
-            var axes = getUsedAxes(), bw = options.grid.borderWidth;
+            var axes = allAxes(), bw = options.grid.borderWidth;
 
             for (var j = 0; j < axes.length; ++j) {
                 var axis = axes[j], box = axis.box,
                     t = axis.tickLength, x, y, xoff, yoff;
 
-                if (axis.ticks.length == 0)
+                if (!axis.show || axis.ticks.length == 0)
                     continue;
 
                 // find the edges
@@ -1575,9 +1567,11 @@
 
         function insertAxisLabels() {
 
-            var axes = getUsedAxes();
+            var axes = allAxes();
             for (var j = 0; j < axes.length; ++j) {
                 var axis = axes[j], box = axis.box;
+                if (!axis.show)
+                    continue;
                 for (var i = 0; i < axis.ticks.length; ++i) {
                     var tick = axis.ticks[i];
                     if (!tick.label || tick.v < axis.min || tick.v > axis.max) {

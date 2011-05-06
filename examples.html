@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8'>
+
+  <title>djw/raphlot @ GitHub</title>
+
+  <style type="text/css">
+    body {
+      margin-top: 1.0em;
+      background-color: #ffffff;
+      font-family: Helvetica, Arial, FreeSans, san-serif;
+      color: #000000;
+    }
+    #container {
+      margin: 0 auto;
+      width: 700px;
+    }
+    h1 { font-size: 3.8em; color: #000000; margin-bottom: 3px; }
+    h1 .small { font-size: 0.4em; }
+    h1 a { text-decoration: none }
+    h2 { font-size: 1.5em; color: #000000; }
+    h3 { text-align: center; color: #000000; }
+    a { color: #000000; }
+    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
+    .download { float: right; }
+    pre { background: #000; color: #fff; padding: 15px;}
+    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
+    .footer { text-align:center; padding-top:30px; font-style: italic; }
+    .compare {font-size: 0.8em; text-align:right;}
+  </style>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js" type="text/javascript"></script>
+  <script src="raphael.js" type="text/javascript"></script>
+  
+  <script src="http://github.com/djw/raphlot/raw/master/jquery.flot.raph.js"></script>
+  <script src="http://github.com/djw/raphlot/raw/master/jquery.flot.selection.js"></script>
+  <script src="http://github.com/djw/raphlot/raw/master/jquery.flot.pie.js"></script>
+  
+  <script type="text/javascript"> 
+  $(function () {
+      var d1 = [];
+      for (var i = 0; i < 14; i += 0.5)
+          d1.push([i, Math.sin(i)]);
+
+      var d2 = [[0, 3], [4, 8], [8, 5], [9, 13]];
+
+      var d3 = [];
+      for (var i = 0; i < 14; i += 0.5)
+          d3.push([i, Math.cos(i)]);
+
+      var d4 = [];
+      for (var i = 0; i < 14; i += 0.1)
+          d4.push([i, Math.sqrt(i * 10)]);
+
+      var d5 = [];
+      for (var i = 0; i < 14; i += 0.5)
+          d5.push([i, Math.sqrt(i)]);
+
+      var d6 = [];
+      for (var i = 0; i < 14; i += 0.5 + Math.random())
+          d6.push([i, Math.sqrt(2*i + Math.sin(i) + 5)]);
+
+      $.plot($("#graphtypes"), [
+          {
+              data: d1,
+              lines: { show: true, fill: true }
+          },
+          {
+              data: d2,
+              bars: { show: true }
+          },
+          {
+              data: d3,
+              points: { show: true }
+          },
+          {
+              data: d4,
+              lines: { show: true }
+          },
+          {
+              data: d5,
+              lines: { show: true },
+              points: { show: true }
+          },
+          {
+              data: d6,
+              lines: { show: true, steps: true }
+          }
+      ]);
+  });
+  </script>
+  
+  <script type="text/javascript"> 
+  $(function () {
+      var data = [
+          {
+              label: "United States",
+              data: [[1990, 18.9], [1991, 18.7], [1992, 18.4], [1993, 19.3], [1994, 19.5], [1995, 19.3], [1996, 19.4], [1997, 20.2], [1998, 19.8], [1999, 19.9], [2000, 20.4], [2001, 20.1], [2002, 20.0], [2003, 19.8], [2004, 20.4]]
+          },
+          {
+              label: "Russia", 
+              data: [[1992, 13.4], [1993, 12.2], [1994, 10.6], [1995, 10.2], [1996, 10.1], [1997, 9.7], [1998, 9.5], [1999, 9.7], [2000, 9.9], [2001, 9.9], [2002, 9.9], [2003, 10.3], [2004, 10.5]]
+          },
+          {
+              label: "United Kingdom",
+              data: [[1990, 10.0], [1991, 11.3], [1992, 9.9], [1993, 9.6], [1994, 9.5], [1995, 9.5], [1996, 9.9], [1997, 9.3], [1998, 9.2], [1999, 9.2], [2000, 9.5], [2001, 9.6], [2002, 9.3], [2003, 9.4], [2004, 9.79]]
+          },
+          {
+              label: "Germany",
+              data: [[1990, 12.4], [1991, 11.2], [1992, 10.8], [1993, 10.5], [1994, 10.4], [1995, 10.2], [1996, 10.5], [1997, 10.2], [1998, 10.1], [1999, 9.6], [2000, 9.7], [2001, 10.0], [2002, 9.7], [2003, 9.8], [2004, 9.79]]
+          },
+          {
+              label: "Denmark",
+   	    data: [[1990, 9.7], [1991, 12.1], [1992, 10.3], [1993, 11.3], [1994, 11.7], [1995, 10.6], [1996, 12.8], [1997, 10.8], [1998, 10.3], [1999, 9.4], [2000, 8.7], [2001, 9.0], [2002, 8.9], [2003, 10.1], [2004, 9.80]]
+          },
+          {
+              label: "Sweden",
+              data: [[1990, 5.8], [1991, 6.0], [1992, 5.9], [1993, 5.5], [1994, 5.7], [1995, 5.3], [1996, 6.1], [1997, 5.4], [1998, 5.4], [1999, 5.1], [2000, 5.2], [2001, 5.4], [2002, 6.2], [2003, 5.9], [2004, 5.89]]
+          },
+          {
+              label: "Norway",
+              data: [[1990, 8.3], [1991, 8.3], [1992, 7.8], [1993, 8.3], [1994, 8.4], [1995, 5.9], [1996, 6.4], [1997, 6.7], [1998, 6.9], [1999, 7.6], [2000, 7.4], [2001, 8.1], [2002, 12.5], [2003, 9.9], [2004, 19.0]]
+          }
+      ];
+
+      var options = {
+          series: {
+              lines: { show: true },
+              points: { show: true }
+          },
+          legend: { noColumns: 2 },
+          xaxis: { tickDecimals: 0 },
+          yaxis: { min: 0 },
+          selection: { mode: "x" }
+      };
+
+      var placeholder = $("#selection-ph");
+
+      placeholder.bind("plotselected", function (event, ranges) {
+          $("#selection").text(ranges.xaxis.from.toFixed(1) + " to " + ranges.xaxis.to.toFixed(1));
+
+          var zoom = $("#zoom").attr("checked");
+          if (zoom)
+              plot = $.plot(placeholder, data,
+                            $.extend(true, {}, options, {
+                                xaxis: { min: ranges.xaxis.from, max: ranges.xaxis.to }
+                            }));
+      });
+
+      placeholder.bind("plotunselected", function (event) {
+          $("#selection").text("");
+      });
+
+      var plot = $.plot(placeholder, data, options);
+
+      $("#clearSelection").click(function () {
+          plot.clearSelection();
+      });
+
+      $("#setSelection").click(function () {
+          plot.setSelection({ xaxis: { from: 1994, to: 1995 } });
+      });
+  });
+  </script>
+  
+  <script type="text/javascript">
+  $(function () {
+
+  	var data = [];
+  	var series = Math.floor(Math.random()*5)+2;
+  	for( var i = 0; i<series; i++)
+  	{
+  		data[i] = { label: "Series"+(i+1), data: Math.floor(Math.random()*100)+1 }
+  	}
+
+  	// DEFAULT
+      $.plot($("#pie"), data, 
+  	{
+  		series: {
+  			pie: { 
+  				show: true
+  			}
+  		}
+  	});
+  	
+  	// DONUT
+      $.plot($("#donut"), data, 
+  	{
+  		series: {
+  			pie: { 
+  				innerRadius: 0.5,
+  				show: true
+  			}
+  		}
+  	});
+  });
+
+  function pieHover(event, pos, obj) 
+  {
+  	if (!obj)
+                  return;
+  	percent = parseFloat(obj.series.percent).toFixed(2);
+  	$("#hover").html('<span style="font-weight: bold; color: '+obj.series.color+'">'+obj.series.label+' ('+percent+'%)</span>');
+  }
+
+  function pieClick(event, pos, obj) 
+  {
+  	if (!obj)
+                  return;
+  	percent = parseFloat(obj.series.percent).toFixed(2);
+  	alert(''+obj.series.label+': '+percent+'%');
+  }
+  </script>
+  
+</head>
+
+<body>
+  <a href="http://github.com/djw/raphlot"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
+
+  <div id="container">
+
+    <div class="download">
+      <a href="http://github.com/djw/raphlot/zipball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
+      <a href="http://github.com/djw/raphlot/tarball/master">
+        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
+    </div>
+
+    <h1><a href="http://github.com/djw/raphlot">raphlot</a>
+      <span class="small">by <a href="http://github.com/djw">djw</a></span></h1>
+
+    <div class="description">
+      Flot ported to use Raphaël APIs
+    </div>
+
+    <h2>Examples</h2>
+
+    <h3>Graph Types</h3>
+    <div id="graphtypes" style="width:100%;height:400px;"></div> 
+    <p class="compare"><a href="http://flot.googlecode.com/svn/trunk/examples/graph-types.html">Flot example</a></p>
+    
+    <h3>Selection</h3>
+    <div id="selection-ph" style="width:100%;height:400px;"></div> 
+    <p>You selected: <span id="selection"></span></p> 
+    <p><input id="setSelection" type="button" value="Select year 1994" /></p>
+    <p><label><input id="zoom" type="checkbox" />Zoom to selection.</label></p> 
+    
+    <p class="compare"><a href="http://flot.googlecode.com/svn/trunk/examples/selection.html">Flot example</a></p>
+    
+    
+    
+    <h3>Pie Charts</h3>
+    <div id="pie" style="display:inline-block;width:45%;height:400px;padding-right:50px;"></div>
+    <div id="donut" style="display:inline-block;width:45%;height:400px;"></div>
+    <p class="compare"><a href="http://flot.googlecode.com/svn/trunk/examples/pie.html">Flot example</a></p>
+    
+    <div class="footer">
+      get the source code on GitHub : <a href="http://github.com/djw/raphlot">djw/raphlot</a>
+    </div>
+
+  </div>
+
+  
+</body>
+</html>

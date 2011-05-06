@@ -681,7 +681,8 @@
             placeholder.html(""); // clear placeholder
             if (placeholder.css("position") == 'static')
                 placeholder.css("position", "relative"); // for positioning labels and overlay
-
+            placeholder.css({ padding: 0 });
+            
             if (canvasWidth <= 0 || canvasHeight <= 0)
                 throw "Invalid dimensions for plot, width = " + canvasWidth + ", height = " + canvasHeight;
             paper = Raphael(placeholder[0], placeholder.width(), placeholder.height());

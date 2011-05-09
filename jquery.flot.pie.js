@@ -196,16 +196,13 @@ More detail and specific examples can be found in the included HTML file.
 		}
 		
 		function fixData(data) {
-			for (var i = 0; i < data.length; ++i)
-			{
+			for (var i = 0; i < data.length; ++i) {
 				if (typeof(data[i].data)=='number')
 					data[i].data = [[1,data[i].data]];
-				else if (typeof(data[i].data)=='undefined' || typeof(data[i].data[0])=='undefined')
-				{
+				else if (typeof(data[i].data)=='undefined' || typeof(data[i].data[0])=='undefined') {
 					if (typeof(data[i].data)!='undefined' && typeof(data[i].data.label)!='undefined')
 						data[i].label = data[i].data.label; // fix weirdness coming from flot
 					data[i].data = [[1,0]];
-					
 				}
 			}
 			return data;
@@ -322,19 +319,19 @@ More detail and specific examples can be found in the included HTML file.
             }
 
             function drawPie() {
-                var startAngle = Math.PI*options.series.pie.startAngle;
+                var startAngle = Math.PI * options.series.pie.startAngle;
                 
                 // set radius
-                if (options.series.pie.radius>1)
-                 var radius = options.series.pie.radius;
+                var radius;
+                if (options.series.pie.radius > 1)
+                    radius = options.series.pie.radius;
                 else
-                 var radius = maxRadius * options.series.pie.radius;
+                    radius = maxRadius * options.series.pie.radius;
                 
                 var pie_set = paper.set();
 
                 var currentAngle = startAngle;
-                for (var i = 0; i < slices.length; ++i)
-                {
+                for (var i = 0; i < slices.length; ++i) {
                     slices[i].startAngle = currentAngle;
                     drawSlice(slices[i].angle, slices[i].color, true);
                 }
@@ -344,28 +341,23 @@ More detail and specific examples can be found in the included HTML file.
                 
                 // draw labels
                 if (options.series.pie.label.show)
-                 drawLabels();
-                
-                // // restore to original state
-                // ctx.restore();
-                // 
+                    drawLabels();
                 
                 pie_set.translate(centerLeft, centerTop);
                 pie_set.scale(1, options.series.pie.tilt, centerLeft, centerTop);
                 
                 function drawSlice(angle, color, fill) {
-                 if (angle<=0)
-                     return;
+                    if (angle <= 0 || isNaN(angle))
+                        return;
                 
-                 function sector(cx, cy, r, startAngle, endAngle) {
-                     var x1 = cx + r * Math.cos(startAngle),
-                         x2 = cx + r * Math.cos(endAngle),
-                         y1 = cy + r * Math.sin(startAngle),
-                         y2 = cy + r * Math.sin(endAngle),
-                         res = ["M", cx, cy, "L", x1, y1, "A", r, r, 0, +(Math.abs(endAngle - startAngle) > Math.PI), 1, x2, y2, "z"];
-                     // console.log(res);
-                     return res.join(",");
-                 }
+                    function sector(cx, cy, r, startAngle, endAngle) {
+                        var x1 = cx + r * Math.cos(startAngle),
+                            x2 = cx + r * Math.cos(endAngle),
+                            y1 = cy + r * Math.sin(startAngle),
+                            y2 = cy + r * Math.sin(endAngle),
+                            res = ["M", cx, cy, "L", x1, y1, "A", r, r, 0, +(Math.abs(endAngle - startAngle) > Math.PI), 1, x2, y2, "z"];
+                        return res.join(",");
+                    }
                  
                 //  if (fill)
                 //      ctx.fillStyle = color;
@@ -381,20 +373,20 @@ More detail and specific examples can be found in the included HTML file.
                 //  else if ($.browser.msie)
                 //      angle -= 0.0001;
 
-                if (angle === Math.PI*2) {
-                    pie_set.push(paper.circle(0, 0, radius).attr({
-                        "fill": color,
-                        "stroke": options.series.pie.stroke.color
-                    }));
-                } else {
-                    pie_set.push(paper.path(sector(0, 0, radius, currentAngle, currentAngle + angle)).attr({
-                        "fill": color,
-                        "stroke": options.series.pie.stroke.color
-                    }));
-                }
+                    if (angle === Math.PI*2) {
+                        pie_set.push(paper.circle(0, 0, radius).attr({
+                            "fill": color,
+                            "stroke": options.series.pie.stroke.color
+                        }));
+                    } else {
+                        pie_set.push(paper.path(sector(0, 0, radius, currentAngle, currentAngle + angle)).attr({
+                            "fill": color,
+                            "stroke": options.series.pie.stroke.color
+                        }));
+                    }
 
                 //  //ctx.rotate(angle); // This doesn't work properly in Opera
-                currentAngle += angle;
+                    currentAngle += angle;
                 //  
                 //  if (fill)
                 //      ctx.fill();
@@ -621,9 +613,7 @@ More detail and specific examples can be found in the included HTML file.
 		}
 
 		function drawOverlay(plot, octx) {
-			//alert(options.series.pie.radius);
 			var options = plot.getOptions();
-			//alert(options.series.pie.radius);
 			
 			var radius = options.series.pie.radius > 1 ? options.series.pie.radius : maxRadius * options.series.pie.radius;
             // 

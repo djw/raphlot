@@ -150,7 +150,8 @@
             drawSeries: [],
             draw: [],
             bindEvents: [],
-            drawOverlay: []
+            drawOverlay: [],
+            shutdown: []
         },
         plot = this;
 
@@ -193,14 +194,20 @@
                 top: parseInt(yaxes[axisNumber(point, "y") - 1].p2c(+point.y) + plotOffset.top)
             };
         };
+        plot.shutdown = shutdown;
+        plot.resize = function () {
+            getCanvasDimensions();
+            resizeCanvas(paper);
+        };
         plot.bindEvents = bindEvents;
+        
         // public attributes
         plot.hooks = hooks;
         
         // initialize
         initPlugins(plot);
         parseOptions(options_);
-        constructCanvas();
+        setupCanvases();
         setData(data_);
         setupGrid();
         draw();
@@ -675,24 +682,47 @@
             });
         }
 
-        function constructCanvas() {
-            
+        function getCanvasDimensions() {
             canvasWidth = placeholder.width();
             canvasHeight = placeholder.height();
-            placeholder.html(""); // clear placeholder
-            if (placeholder.css("position") == 'static')
-                placeholder.css("position", "relative"); // for positioning labels and overlay
-            placeholder.css({ padding: 0 });
             
             if (canvasWidth <= 0 || canvasHeight <= 0)
                 throw "Invalid dimensions for plot, width = " + canvasWidth + ", height = " + canvasHeight;
-            paper = Raphael(placeholder[0], placeholder.width(), placeholder.height());
         }
+        
+        function resizeCanvas(c) {
+            c.clear();
+            c.setSize(canvasWidth, canvasHeight);
+        }
+        
+        function setupCanvases() {
+            paper = placeholder.data("paper");
+            
+            if (paper) {
+                placeholder.data("plot").shutdown();
+                plot.resize();
+                $(paper.canvas).unbind();
+            } else {
+                placeholder.html(""); // make sure placeholder is clear
 
-        function bindEvents() {
+                placeholder.css({ padding: 0 }); // padding messes up the positioning
+                if (placeholder.css("position") == 'static')
+                    placeholder.css("position", "relative"); // for positioning labels and overlay
+
+                getCanvasDimensions();
+
+                paper = Raphael(placeholder[0], canvasWidth, canvasHeight);
+            }
 
             eventHolder = $(paper.canvas).css("pointer-events","fill");
 
+            // save in case we get replotted
+            placeholder.data("plot", plot);
+            placeholder.data("paper", paper);
+            
+        }
+
+        function bindEvents() {
             // bind events
             if (options.grid.hoverable) {
                 eventHolder.mousemove(onMouseMove);
@@ -703,6 +733,17 @@
                 eventHolder.click(onClick);
 
             executeHooks(hooks.bindEvents, [eventHolder]);
+        }
+        
+        function shutdown() {
+            if (redrawTimeout)
+                clearTimeout(redrawTimeout);
+            
+            eventHolder.unbind("mousemove", onMouseMove);
+            eventHolder.unbind("mouseleave", onMouseLeave);
+            eventHolder.unbind("click", onClick);
+            
+            executeHooks(hooks.shutdown, [eventHolder]);
         }
 
         function setTransformationHelpers(axis) {

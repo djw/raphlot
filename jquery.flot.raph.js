@@ -1608,7 +1608,7 @@
                     if (axis.direction == "x") {
                         x = plotOffset.left + axis.p2c(tick.v);
                         if (axis.position == "bottom")
-                            y = box.top + box.padding;
+                            y = box.top + box.padding + tick.height/2;
                         else
                             y = box.top + box.height - box.padding - tick.height;
                     } else {

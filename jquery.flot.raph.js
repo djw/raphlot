@@ -820,8 +820,8 @@
                 }
             }
 
-            axis.labelWidth = axisw;
-            axis.labelHeight = axish;
+            axis.labelWidth = Math.ceil(axisw);
+            axis.labelHeight = Math.ceil(axish);
         }
 
         function allocateAxisBoxFirstPhase(axis) {

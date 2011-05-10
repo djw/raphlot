@@ -1591,6 +1591,9 @@
         function drawAxisLabels() {
 
             $.each(allAxes(), function (_, axis) {
+                if (!axis.show || axis.ticks.length == 0)
+                    return;
+                
                 var box = axis.box, f = axis.font;
 
                 for (var i = 0; i < axis.ticks.length; ++i) {

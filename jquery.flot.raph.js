@@ -135,6 +135,9 @@
                     autoHighlight: true, // highlight in case mouse is near
                     mouseActiveRadius: 10 // how far the mouse can be away to activate an item
                 },
+                interaction: {
+                    redrawOverlayInterval: 1000/60 // time between updates, -1 means in same flow
+                },
                 hooks: {}
             },
         eventHolder = null, // jQuery object that events should be bound to
@@ -2322,8 +2325,13 @@
         }
 
         function triggerRedrawOverlay() {
+            var t = options.interaction.redrawOverlayInterval;
+            if (t == -1) { // skip event queue
+                drawOverlay();
+                return;
+            }
             if (!redrawTimeout)
-                redrawTimeout = setTimeout(drawOverlay, 30);
+                redrawTimeout = setTimeout(drawOverlay, t);
         }
 
         function drawOverlay() {
